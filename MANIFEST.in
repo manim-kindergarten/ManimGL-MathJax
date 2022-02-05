@@ -1,0 +1,3 @@
+graft manimgl_mathjax
+recursive-exclude manimgl_mathjax *.pyc *.DS_Store package-lock.json
+prune manimgl_mathjax/node_modules

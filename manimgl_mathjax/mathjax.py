@@ -1,10 +1,18 @@
-from manimlib import *
-from manimlib.mobject.svg.mtex_mobject import _TexSVG
+import os
+import re
+import sys
+import inspect
+import importlib
+from manimlib.logger import log
+from manimlib.utils.directories import get_tex_dir
+from manimlib.mobject.svg.mtex_mobject import _TexSVG, MTex
 from manimlib.utils.tex_file_writing import tex_hash
 
 
 def get_mathjax_dir():
-    return "index.js"
+    module = importlib.import_module("manimgl_mathjax")
+    directory = os.path.dirname(inspect.getabsfile(module))
+    return os.path.abspath(os.path.join(directory, "index.js"))
 
 
 def tex_content_to_svg_file_using_mathjax(tex_content):
