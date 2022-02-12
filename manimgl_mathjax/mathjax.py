@@ -54,7 +54,7 @@ class JTex(MTex):
     def __init__(self, tex_string, **kwargs):
         super().__init__(tex_string, **kwargs)
         if self.use_mathjax:
-            self.scale(0.01)
+            self.scale(0.75)
 
     def get_tex_file_content(self, tex_string):
         if not self.use_mathjax:
