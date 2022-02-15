@@ -75,11 +75,6 @@ class JTex(MTex):
             return super().get_tex_file_body(tex_string)
         return tex_string.replace("\n", " ")
 
-    def get_tex_file_content(self, tex_string):
-        if not self.use_mathjax:
-            return super().get_tex_file_content(tex_string)
-        return tex_string.replace("\n", " ")
-
     def tex_to_svg_file_path(self, tex_file_content):
         if not self.use_mathjax:
             return super().tex_to_svg_file_path(tex_file_content)
