@@ -5,7 +5,7 @@ import inspect
 import importlib
 from manimlib.logger import log
 from manimlib.utils.directories import get_tex_dir
-from manimlib.mobject.svg.mtex_mobject import _TexSVG, MTex
+from manimlib.mobject.svg.mtex_mobject import MTex
 from manimlib.utils.tex_file_writing import tex_hash
 
 
@@ -54,15 +54,28 @@ class JTex(MTex):
     def __init__(self, tex_string, **kwargs):
         super().__init__(tex_string, **kwargs)
         if self.use_mathjax:
-            self.scale(0.75)
+            self.scale(0.01)
 
-    def get_tex_file_content(self, tex_string):
+    @property
+    def hash_seed(self):
+        return (
+            self.__class__.__name__,
+            self.svg_default,
+            self.path_string_config,
+            self.tex_string,
+            self.parser.specified_substrings,
+            self.alignment,
+            self.tex_environment,
+            self.use_plain_tex,
+            self.use_mathjax
+        )
+
+    def get_tex_file_body(self, tex_string):
         if not self.use_mathjax:
-            return super().get_tex_file_content(tex_string)
+            return super().get_tex_file_body(tex_string)
         return tex_string.replace("\n", " ")
 
-    def tex_content_to_glyphs(self, tex_content):
+    def tex_to_svg_file_path(self, tex_file_content):
         if not self.use_mathjax:
-            return super().tex_content_to_glyphs(tex_content)
-        filename = tex_content_to_svg_file_using_mathjax(tex_content)
-        return _TexSVG(filename)
+            return super().tex_to_svg_file_path(tex_file_content)
+        return tex_content_to_svg_file_using_mathjax(tex_file_content)
