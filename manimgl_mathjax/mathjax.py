@@ -3,6 +3,7 @@ import re
 import sys
 import inspect
 import importlib
+import subprocess
 from manimlib.logger import log
 from manimlib.utils.directories import get_tex_dir
 from manimlib.mobject.svg.mtex_mobject import MTex
@@ -15,33 +16,31 @@ def get_mathjax_dir():
     return os.path.abspath(os.path.join(directory, "index.js"))
 
 
-def tex_content_to_svg_file_using_mathjax(tex_content):
+def tex_content_to_svg_file_using_mathjax(tex_content, *args):
     svg_file = os.path.join(
         get_tex_dir(), tex_hash(tex_content) + ".svg"
     )
     if not os.path.exists(svg_file):
-        tex_content_to_svg_using_mathjax(tex_content, svg_file)
-    return svg_file
+        # create pipe
+        process = subprocess.Popen(
+            ["node", get_mathjax_dir(), *args],
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE
+        )
+        process.stdin.write(bytes(tex_content, "utf-8"))
+        stdout, stderr = process.communicate()
 
-
-def tex_content_to_svg_using_mathjax(tex_file_content, svg_file):
-    commands = [
-        "node",
-        f"\"{get_mathjax_dir()}\"",
-        f"\"{svg_file}\"",
-        f"\"{tex_file_content}\"",
-        ">",
-        os.devnull
-    ]
-    exit_code = os.system(" ".join(commands))
-    with open(svg_file, "r", encoding="utf-8") as file:
-        error_match_obj = re.search(r"(?<=data\-mjx\-error\=\")(.*?)(?=\")", file.read())
-    if exit_code != 0 or error_match_obj is not None:
-        log.error("LaTeX Error!  Not a worry, it happens to the best of us.")
+        # capture LaTeX error
+        svg_str = str(stdout, "utf-8")
+        error_match_obj = re.search(r"(?<=data\-mjx\-error\=\")(.*?)(?=\")", svg_str)
         if error_match_obj is not None:
+            log.error("LaTeX Error!  Not a worry, it happens to the best of us.")
             log.debug(f"The error could be: `{error_match_obj.group()}`")
-        os.remove(svg_file)
-        sys.exit(2)
+            sys.exit(2)
+
+        # save svg file
+        with open(svg_file, "wb") as out:
+            out.write(stdout)
     return svg_file
 
 
@@ -73,9 +72,17 @@ class JTex(MTex):
     def get_tex_file_body(self, tex_string):
         if not self.use_mathjax:
             return super().get_tex_file_body(tex_string)
-        return tex_string.replace("\"", "\\\"").replace("\n", " ")
+        return tex_string
 
     def tex_to_svg_file_path(self, tex_file_content):
         if not self.use_mathjax:
             return super().tex_to_svg_file_path(tex_file_content)
         return tex_content_to_svg_file_using_mathjax(tex_file_content)
+
+
+class AM(JTex):
+    def get_tex_file_body(self, am_string):
+        return am_string
+
+    def get_file_path(self):
+        return tex_content_to_svg_file_using_mathjax(self.tex_string, "--am")
