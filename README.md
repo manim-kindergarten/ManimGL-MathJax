@@ -13,3 +13,5 @@ $ manimgl-mathjax install
 
 ## Usage
 Just use `JTex` instead of [`MTex`](https://github.com/3b1b/manim/pull/1725#issue-1121866424)
+
+Use `AM` to write math in [asciimath](http://asciimath.org/) notation, [see also](https://zmx0142857.gitee.io/note/#math).

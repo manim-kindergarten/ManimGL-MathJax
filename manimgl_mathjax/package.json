@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "asciimath-js": "^1.0.1",
     "mathjax-full": "^3.2.0"
   },
   "name": "manim-mathjax",
