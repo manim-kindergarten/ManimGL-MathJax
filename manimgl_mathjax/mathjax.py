@@ -6,7 +6,7 @@ import importlib
 import subprocess
 from manimlib.logger import log
 from manimlib.utils.directories import get_tex_dir
-from manimlib.mobject.svg.mtex_mobject import MTex
+from manimlib.mobject.svg.labelled_string import MTex
 from manimlib.utils.tex_file_writing import tex_hash
 
 
@@ -47,7 +47,7 @@ def tex_content_to_svg_file_using_mathjax(tex_content, *args):
 class JTex(MTex):
     CONFIG = {
         "use_mathjax": True,
-        "use_plain_tex": True
+        "use_plain_file": True
     }
 
     def __init__(self, tex_string, **kwargs):
@@ -61,11 +61,13 @@ class JTex(MTex):
             self.__class__.__name__,
             self.svg_default,
             self.path_string_config,
+            self.base_color,
+            self.use_plain_file,
+            self.isolate,
             self.tex_string,
-            self.parser.specified_substrings,
             self.alignment,
             self.tex_environment,
-            self.use_plain_tex,
+            self.tex_to_color_map,
             self.use_mathjax
         )
 
