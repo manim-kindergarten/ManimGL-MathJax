@@ -6,7 +6,7 @@ import importlib
 import subprocess
 from manimlib.logger import log
 from manimlib.utils.directories import get_tex_dir
-from manimlib.mobject.svg.labelled_string import MTex
+from manimlib.mobject.svg.mtex_mobject import MTex
 from manimlib.utils.tex_file_writing import tex_hash
 
 
