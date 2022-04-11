@@ -77,9 +77,7 @@ class JTex(MTex):
     def get_file_path_by_content(self, content):
         if not self.use_mathjax:
             return super().get_file_path_by_content(content)
-
-        new_content = content.replace("\"", "\\\"").replace("\n", " ")
-        return tex_content_to_svg_file_using_mathjax(new_content)
+        return tex_content_to_svg_file_using_mathjax(content)
 
 
 class AM(JTex):
