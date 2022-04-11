@@ -4,9 +4,11 @@ import sys
 import inspect
 import importlib
 import subprocess
+
 from manimlib.logger import log
-from manimlib.utils.directories import get_tex_dir
 from manimlib.mobject.svg.mtex_mobject import MTex
+from manimlib.utils.config_ops import digest_config
+from manimlib.utils.directories import get_tex_dir
 from manimlib.utils.tex_file_writing import tex_hash
 
 
@@ -51,6 +53,8 @@ class JTex(MTex):
     }
 
     def __init__(self, tex_string, **kwargs):
+        digest_config(self, kwargs)
+        self.alignment = ""
         super().__init__(tex_string, **kwargs)
         if self.use_mathjax:
             self.scale(0.01)
@@ -65,21 +69,17 @@ class JTex(MTex):
             self.use_plain_file,
             self.isolate,
             self.tex_string,
-            self.alignment,
             self.tex_environment,
             self.tex_to_color_map,
             self.use_mathjax
         )
 
-    def get_tex_file_body(self, tex_string):
+    def get_file_path_by_content(self, content):
         if not self.use_mathjax:
-            return super().get_tex_file_body(tex_string)
-        return tex_string
+            return super().get_file_path_by_content(content)
 
-    def tex_to_svg_file_path(self, tex_file_content):
-        if not self.use_mathjax:
-            return super().tex_to_svg_file_path(tex_file_content)
-        return tex_content_to_svg_file_using_mathjax(tex_file_content)
+        new_content = content.replace("\"", "\\\"").replace("\n", " ")
+        return tex_content_to_svg_file_using_mathjax(new_content)
 
 
 class AM(JTex):
