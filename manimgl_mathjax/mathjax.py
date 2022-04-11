@@ -55,7 +55,7 @@ class JTex(MTex):
     def __init__(self, tex_string, **kwargs):
         digest_config(self, kwargs)
         self.alignment = ""
-        super().__init__(tex_string, **kwargs)
+        super().__init__(tex_string)
         if self.use_mathjax:
             self.scale(0.01)
 
