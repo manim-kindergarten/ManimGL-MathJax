@@ -1,22 +1,27 @@
+import importlib
+import inspect
 import os
 import re
-import sys
-import inspect
-import importlib
 import subprocess
+import sys
+
+from manimlib.constants import WHITE
 from manimlib.logger import log
-from manimlib.utils.directories import get_tex_dir
+from manimlib.mobject.svg.svg_mobject import SVGMobject
 from manimlib.mobject.svg.mtex_mobject import MTex
+from manimlib.mobject.svg.mtex_mobject import SCALE_FACTOR_PER_FONT_POINT
+from manimlib.utils.config_ops import digest_config
+from manimlib.utils.directories import get_tex_dir
 from manimlib.utils.tex_file_writing import tex_hash
 
 
-def get_mathjax_dir():
+def get_mathjax_dir() -> str:
     module = importlib.import_module("manimgl_mathjax")
     directory = os.path.dirname(inspect.getabsfile(module))
     return os.path.abspath(os.path.join(directory, "index.js"))
 
 
-def tex_content_to_svg_file_using_mathjax(tex_content, *args):
+def tex_content_to_svg_file_using_mathjax(tex_content: str, *args: str) -> str:
     svg_file = os.path.join(
         get_tex_dir(), tex_hash(tex_content) + ".svg"
     )
@@ -46,17 +51,18 @@ def tex_content_to_svg_file_using_mathjax(tex_content, *args):
 
 class JTex(MTex):
     CONFIG = {
-        "use_mathjax": True,
         "use_plain_file": True
     }
 
-    def __init__(self, tex_string, **kwargs):
-        super().__init__(tex_string, **kwargs)
-        if self.use_mathjax:
-            self.scale(0.01)
+    def __init__(self, tex_string: str, **kwargs):
+        digest_config(self, kwargs)
+        self.alignment = None
+        self.tex_environment = None
+        super().__init__(tex_string)
+        self.scale(0.01)
 
     @property
-    def hash_seed(self):
+    def hash_seed(self) -> tuple:
         return (
             self.__class__.__name__,
             self.svg_default,
@@ -65,26 +71,41 @@ class JTex(MTex):
             self.use_plain_file,
             self.isolate,
             self.tex_string,
-            self.alignment,
-            self.tex_environment,
-            self.tex_to_color_map,
-            self.use_mathjax
+            self.tex_to_color_map
         )
 
-    def get_tex_file_body(self, tex_string):
-        if not self.use_mathjax:
-            return super().get_tex_file_body(tex_string)
-        return tex_string
-
-    def tex_to_svg_file_path(self, tex_file_content):
-        if not self.use_mathjax:
-            return super().tex_to_svg_file_path(tex_file_content)
-        return tex_content_to_svg_file_using_mathjax(tex_file_content)
+    def get_file_path_by_content(self, content: str) -> str:
+        return tex_content_to_svg_file_using_mathjax(content)
 
 
-class AM(JTex):
-    def get_tex_file_body(self, am_string):
-        return am_string
+class AM(SVGMobject):
+    CONFIG = {
+        "height": None,
+        "fill_opacity": 1.0,
+        "stroke_width": 0,
+        "color": WHITE,
+        "path_string_config": {
+            "should_subdivide_sharp_curves": True,
+            "should_remove_null_curves": True,
+        },
+        "font_size": 48,
+    }
 
-    def get_file_path(self):
-        return tex_content_to_svg_file_using_mathjax(self.tex_string, "--am")
+    def __init__(self, am_string: str, **kwargs):
+        self.am_string = am_string
+        super().__init__(**kwargs)
+
+        if self.height is None:
+            self.scale(0.01 * SCALE_FACTOR_PER_FONT_POINT * self.font_size)
+
+    @property
+    def hash_seed(self) -> tuple:
+        return (
+            self.__class__.__name__,
+            self.svg_default,
+            self.path_string_config,
+            self.am_string
+        )
+
+    def get_file_path(self) -> str:
+        return tex_content_to_svg_file_using_mathjax(self.am_string, "--am")
