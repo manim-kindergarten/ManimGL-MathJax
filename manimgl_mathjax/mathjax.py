@@ -9,6 +9,7 @@ from manimlib.constants import WHITE
 from manimlib.logger import log
 from manimlib.mobject.svg.svg_mobject import SVGMobject
 from manimlib.mobject.svg.mtex_mobject import MTex
+from manimlib.mobject.svg.mtex_mobject import SCALE_FACTOR_PER_FONT_POINT
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.directories import get_tex_dir
 from manimlib.utils.tex_file_writing import tex_hash
@@ -95,7 +96,7 @@ class AM(SVGMobject):
         super().__init__(**kwargs)
 
         if self.height is None:
-            self.scale(0.00001 * self.font_size)
+            self.scale(0.01 * SCALE_FACTOR_PER_FONT_POINT * self.font_size)
 
     @property
     def hash_seed(self) -> tuple:
