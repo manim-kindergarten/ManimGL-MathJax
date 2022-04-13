@@ -59,7 +59,9 @@ class JTex(MTex):
         self.alignment = None
         self.tex_environment = None
         super().__init__(tex_string)
-        self.scale(0.01)
+
+        if self.height is None:
+            self.scale(0.01)
 
     @property
     def hash_seed(self) -> tuple:
