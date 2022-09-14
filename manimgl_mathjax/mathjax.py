@@ -12,7 +12,7 @@ from manimlib.mobject.svg.mtex_mobject import MTex
 from manimlib.mobject.svg.mtex_mobject import SCALE_FACTOR_PER_FONT_POINT
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.directories import get_tex_dir
-from manimlib.utils.tex_file_writing import tex_hash
+from manimlib.utils.simple_functions import hash_string
 
 
 def get_mathjax_dir() -> str:
@@ -23,7 +23,7 @@ def get_mathjax_dir() -> str:
 
 def tex_content_to_svg_file_using_mathjax(tex_content: str, *args: str) -> str:
     svg_file = os.path.join(
-        get_tex_dir(), tex_hash(tex_content) + ".svg"
+        get_tex_dir(), hash_string(tex_content) + ".svg"
     )
     if not os.path.exists(svg_file):
         # create pipe
@@ -50,10 +50,6 @@ def tex_content_to_svg_file_using_mathjax(tex_content: str, *args: str) -> str:
 
 
 class JTex(MTex):
-    CONFIG = {
-        "use_plain_file": True,
-    }
-
     def __init__(self, tex_string: str, **kwargs):
         digest_config(self, kwargs)
         self.alignment = None
@@ -69,8 +65,8 @@ class JTex(MTex):
             self.svg_default,
             self.path_string_config,
             self.base_color,
-            self.use_plain_file,
             self.isolate,
+            self.protect,
             self.tex_string,
             self.tex_environment,
             self.tex_to_color_map
